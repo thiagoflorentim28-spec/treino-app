@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+<meta name="theme-color" content="#0F1013" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="Treino" />
+<link rel="manifest" href="./manifest.json" />
+<title>Treino</title>
+<style>
+  :root{
+    --bg:#0F1013; --card:#1E2127; --card2:#14161A; --border:#2A2E36;
+    --accent:#C8FF3D; --text:#F2F3F0; --muted:#8B8F98; --muted2:#6B7078;
+  }
+  *{ box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  html,body{ margin:0; padding:0; background:var(--bg); color:var(--text);
+    font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif; }
+  .mono{ font-family:'SFMono-Regular',Consolas,'Liberation Mono',Menlo,monospace; }
+  #app{ max-width:480px; margin:0 auto; min-height:100vh; padding-bottom:88px; position:relative; }
+  .topbar{ padding:24px 20px 12px; }
+  .eyebrow{ font-size:11px; letter-spacing:.16em; text-transform:uppercase; color:var(--muted2); font-weight:600; }
+  h1.title{ font-size:28px; font-weight:800; margin:2px 0 0; letter-spacing:-.01em; }
+  .banner{ margin:0 20px 16px; background:rgba(200,255,61,.1); border:1px solid rgba(200,255,61,.25);
+    border-radius:12px; padding:12px 14px; display:flex; gap:10px; align-items:center; font-size:12.5px; color:#d5d7db; }
+  .card{ background:var(--card); border:1px solid var(--border); border-radius:16px; }
+  .section{ padding:0 20px; margin-top:24px; }
+  .streak-card{ margin:0 20px; padding:18px; }
+  .streak-head{ display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; }
+  .streak-label{ display:flex; align-items:center; gap:8px; font-weight:600; font-size:14px; }
+  .streak-num{ color:var(--accent); font-size:24px; font-weight:800; }
+  .week-grid{ display:grid; grid-template-columns:repeat(7,1fr); gap:8px; margin-bottom:14px; }
+  .day-col{ display:flex; flex-direction:column; align-items:center; gap:6px; }
+  .day-letter{ font-size:10px; color:var(--muted2); }
+  .day-box{ width:100%; aspect-ratio:1; border-radius:8px; display:flex; align-items:center; justify-content:center;
+    background:var(--card2); border:1px solid var(--border); color:transparent; }
+  .day-box.done{ background:var(--accent); color:#0F1013; border:none; }
+  .streak-foot{ display:flex; justify-content:space-between; padding-top:12px; border-top:1px solid var(--border); font-size:12px; }
+  .streak-foot span:first-child{ color:var(--muted); }
+  .workout-card{ width:100%; text-align:left; padding:18px; cursor:pointer; background:linear-gradient(135deg,var(--card),#181A1F);
+    border:1px solid var(--border); border-radius:16px; color:inherit; }
+  .workout-top{ display:flex; align-items:flex-start; justify-content:space-between; }
+  .workout-name{ display:flex; align-items:center; gap:8px; margin-bottom:4px; }
+  .badge-letter{ width:28px; height:28px; border-radius:50%; background:var(--accent); color:#0F1013; font-weight:800;
+    display:flex; align-items:center; justify-content:center; font-size:14px; flex-shrink:0; }
+  .badge-letter.ghost{ background:var(--card2); color:var(--muted2); border:1px solid var(--border); }
+  .wname{ font-weight:600; }
+  .wsub{ font-size:12px; color:var(--muted); margin-top:6px; }
+  .pill-row{ display:flex; gap:8px; margin-top:14px; flex-wrap:wrap; }
+  .pill{ font-size:11px; font-weight:500; padding:5px 10px; border-radius:999px; background:var(--card2); color:var(--muted); border:1px solid var(--border); }
+  .pill.accent{ background:rgba(200,255,61,.1); color:var(--accent); border-color:rgba(200,255,61,.3); }
+  .selector-row{ display:flex; gap:8px; margin-top:12px; padding:0 20px; }
+  .sel-btn{ flex:1; padding:10px; border-radius:10px; font-size:12px; font-weight:700; background:var(--card); color:var(--muted2);
+    border:1px solid var(--border); cursor:pointer; }
+  .sel-btn.active{ background:rgba(200,255,61,.1); color:var(--accent); border-color:rgba(200,255,61,.3); }
+  .seq-note{ font-size:10.5px; color:var(--muted2); margin:8px 20px 0; }
+  .week-list{ display:flex; flex-direction:column; gap:8px; }
+  .week-item{ display:flex; align-items:center; gap:12px; padding:12px 14px; }
+  .week-item span.wtext{ font-size:13px; color:#d5d7db; flex:1; }
+  .topline{ display:flex; align-items:center; gap:12px; padding:20px 20px 8px; }
+  .backbtn{ background:none; border:none; color:var(--muted); cursor:pointer; padding:4px; display:flex; }
+  .progress-track{ height:6px; border-radius:99px; background:var(--card); overflow:hidden; margin:0 20px; }
+  .progress-fill{ height:100%; background:var(--accent); transition:width .3s; }
+  .progress-label{ font-size:11px; color:var(--muted2); margin:8px 20px 16px; }
+  .ex-list{ display:flex; flex-direction:column; gap:10px; padding:0 20px; }
+  .ex-card{ padding:14px; }
+  .ex-card.done{ opacity:.55; }
+  .ex-top{ display:flex; justify-content:space-between; gap:10px; align-items:flex-start; }
+  .ex-name{ font-weight:600; font-size:15px; margin:2px 0 0; }
+  .ex-name.strike{ text-decoration:line-through; color:var(--muted2); }
+  .ex-meta{ font-size:12px; color:var(--muted); margin-top:4px; }
+  .check-btn{ width:32px; height:32px; border-radius:50%; flex-shrink:0; display:flex; align-items:center; justify-content:center;
+    background:var(--card2); border:1px solid var(--border); color:transparent; cursor:pointer; }
+  .check-btn.done{ background:var(--accent); color:#0F1013; border:none; }
+  .load-row{ display:flex; align-items:center; justify-content:space-between; margin-top:10px; background:var(--card2);
+    border:1px solid var(--border); border-radius:10px; padding:8px 12px; }
+  .load-row .lbl{ font-size:11px; color:var(--muted2); }
+  .load-ctrl{ display:flex; align-items:center; gap:12px; }
+  .step-btn{ width:24px; height:24px; border-radius:6px; background:var(--card); border:1px solid var(--border); color:var(--muted);
+    display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:14px; line-height:1; }
+  .load-val{ font-size:13px; font-weight:700; width:56px; text-align:center; }
+  .video-btn{ display:flex; align-items:center; gap:6px; margin-top:10px; background:none; border:none; color:var(--muted);
+    font-size:12px; cursor:pointer; padding:0; }
+  .finish-bar{ position:sticky; bottom:0; padding:14px 20px 20px; margin-top:20px; }
+  .finish-btn{ width:100%; padding:14px; border-radius:12px; background:var(--accent); color:#0F1013; font-weight:800;
+    border:none; font-size:14px; cursor:pointer; }
+  .finish-btn:disabled{ background:var(--card2); color:var(--muted2); }
+  .modal-bg{ position:fixed; inset:0; background:rgba(0,0,0,.8); display:flex; align-items:flex-end; z-index:50; }
+  .modal-sheet{ width:100%; max-width:480px; margin:0 auto; background:var(--card2); border-top:1px solid var(--border);
+    border-radius:20px 20px 0 0; padding:16px; }
+  .modal-head{ display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; }
+  .modal-head p{ font-size:13px; font-weight:700; margin:0; }
+  .modal-close{ background:none; border:none; color:var(--muted); cursor:pointer; }
+  .video-wrap{ border-radius:12px; overflow:hidden; background:#000; aspect-ratio:16/9; }
+  .video-wrap iframe{ width:100%; height:100%; border:none; }
+  .settings-list{ display:flex; flex-direction:column; gap:8px; }
+  .settings-item{ display:flex; justify-content:space-between; align-items:center; padding:14px; }
+  .settings-item .k{ font-size:13px; color:var(--muted); }
+  .settings-item .v{ font-size:13px; font-weight:600; }
+  .navbar{ position:fixed; bottom:0; left:0; right:0; background:rgba(20,22,26,.96); backdrop-filter:blur(8px);
+    border-top:1px solid var(--border); padding:10px 24px 14px; display:flex; justify-content:space-around; max-width:480px; margin:0 auto; }
+  .nav-btn{ display:flex; flex-direction:column; align-items:center; gap:4px; background:none; border:none; color:var(--muted2);
+    cursor:pointer; flex:1; font-family:inherit; }
+  .nav-btn.active{ color:var(--accent); }
+  .nav-btn span{ font-size:10px; font-weight:600; }
+  .loading{ display:flex; align-items:center; justify-content:center; height:100vh; color:var(--muted); font-size:13px; }
+  .login-wrap{ min-height:100vh; display:flex; flex-direction:column; justify-content:center; padding:24px; }
+  .login-input{ width:100%; padding:14px; border-radius:12px; background:var(--card); border:1px solid var(--border);
+    color:var(--text); font-size:14px; margin:16px 0; font-family:inherit; }
+  .login-input:focus{ outline:none; border-color:var(--accent); }
+  .login-btn{ width:100%; padding:14px; border-radius:12px; background:var(--accent); color:#0F1013; font-weight:800;
+    border:none; font-size:14px; cursor:pointer; }
+  .login-btn:disabled{ background:var(--card2); color:var(--muted2); }
+  .login-msg{ font-size:12px; color:var(--muted); text-align:center; margin-top:14px; line-height:1.5; }
+  .login-msg.err{ color:#ff8080; }
+  .logout-btn{ width:100%; margin-top:12px; padding:12px; border-radius:10px; background:none; border:1px solid var(--border);
+    color:var(--muted); font-size:12px; cursor:pointer; }
+</style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+<div id="app"><div class="loading">Carregando…</div></div>
+
+<script>
+// ---------------- DADOS ----------------
+const SEQUENCIA = ["A","B","C"];
+
+const TREINOS = {
+  A: { letra:"A", nome:"Peito, Ombro e Tríceps", nivel:"Intermediário", duracao:"48 min", exercicios:[
+    {id:"A1", nome:"Supino reto barra", series:4, reps:"8-10", grupo:"Peito", cargaBase:60, videoId:"rT7DgCr-3pg"},
+    {id:"A2", nome:"Supino inclinado halter", series:3, reps:"10-12", grupo:"Peito", cargaBase:24, videoId:"8iPEnn-ltC8"},
+    {id:"A3", nome:"Crucifixo máquina", series:3, reps:"12-15", grupo:"Peito", cargaBase:32, videoId:"eozdVDA78K0"},
+    {id:"A4", nome:"Desenvolvimento halter", series:4, reps:"8-10", grupo:"Ombro", cargaBase:16, videoId:"qEwKCR5JCog"},
+    {id:"A5", nome:"Elevação lateral", series:3, reps:"12-15", grupo:"Ombro", cargaBase:10, videoId:"3VcKaXpzqRo"},
+    {id:"A6", nome:"Tríceps corda", series:3, reps:"12-15", grupo:"Tríceps", cargaBase:25, videoId:"vB5OHsJ3EME"},
+    {id:"A7", nome:"Tríceps francês", series:3, reps:"10-12", grupo:"Tríceps", cargaBase:18, videoId:"_gsUck-7M74"},
+  ]},
+  B: { letra:"B", nome:"Costas e Bíceps", nivel:"Intermediário", duracao:"45 min", exercicios:[
+    {id:"B1", nome:"Puxada frente", series:4, reps:"8-10", grupo:"Costas", cargaBase:55, videoId:"CAwf7n6Luuc"},
+    {id:"B2", nome:"Remada curvada barra", series:4, reps:"8-10", grupo:"Costas", cargaBase:40, videoId:"9efgcAjQe7E"},
+    {id:"B3", nome:"Remada baixa cabo", series:3, reps:"10-12", grupo:"Costas", cargaBase:45, videoId:"GZbfZ033f74"},
+    {id:"B4", nome:"Rosca direta barra", series:3, reps:"10-12", grupo:"Bíceps", cargaBase:22, videoId:"kwG2ipFRgfo"},
+    {id:"B5", nome:"Rosca alternada halter", series:3, reps:"10-12", grupo:"Bíceps", cargaBase:10, videoId:"sAq_ocpRh_I"},
+  ]},
+  C: { letra:"C", nome:"Pernas completo", nivel:"Intermediário", duracao:"52 min", exercicios:[
+    {id:"C1", nome:"Agachamento livre", series:4, reps:"8-10", grupo:"Pernas", cargaBase:70, videoId:"Dy28eq2PjcM"},
+    {id:"C2", nome:"Leg press 45°", series:4, reps:"10-12", grupo:"Pernas", cargaBase:140, videoId:"IZxyjW7MPJQ"},
+    {id:"C3", nome:"Cadeira extensora", series:3, reps:"12-15", grupo:"Pernas", cargaBase:35, videoId:"YyvSfVjQeL0"},
+    {id:"C4", nome:"Mesa flexora", series:3, reps:"12-15", grupo:"Pernas", cargaBase:30, videoId:"1Tq3QdYUuHs"},
+    {id:"C5", nome:"Panturrilha em pé", series:4, reps:"15-20", grupo:"Panturrilha", cargaBase:50, videoId:"gwLzBJYoWlI"},
+  ]},
+};
+
+const DIAS_SEMANA_LABEL = ["S","T","Q","Q","S","S","D"]; // seg..dom
+
+// ---------------- CONFIGURAÇÃO SUPABASE ----------------
+// Preencha com os dados do SEU projeto (Supabase → Settings → API)
+const SUPABASE_URL = "https://shubsjnabklvskjjdgox.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNodWJzam5hYmtsdnNrampkZ294Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODUxODQzNTMsImV4cCI6MjEwMDc2MDM1M30.BG92H2d57mpIhnMzeW5AzpBjR-flVvT_uH-1MsakUBs";
+const sb = (SUPABASE_URL.startsWith("http"))
+  ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+  : null;
+
+// ---------------- ESTADO ----------------
+let S = { checkins:[], cargas:{}, concluidosHoje:null, perfil:null };
+let session = null;
+let tela = "home";
+let videoAberto = null;
+let loginStatus = null; // {tipo:'ok'|'erro', msg}
+
+function hojeISO(){ return new Date().toISOString().slice(0,10); }
+
+async function init(){
+  if(!sb){ renderConfigFaltando(); return; }
+  const { data } = await sb.auth.getSession();
+  session = data.session;
+  sb.auth.onAuthStateChange((_event, s) => { session = s; carregarTudo(); });
+  await carregarTudo();
+}
+
+async function carregarTudo(){
+  if(!session){ render(); return; }
+  const uid = session.user.id;
+
+  const [{data: perfilRow}, {data: checkinsRows}, {data: cargasRows}, {data: hojeRow}] = await Promise.all([
+    sb.from("perfis").select("*").eq("id", uid).maybeSingle(),
+    sb.from("checkins").select("data, letra").eq("user_id", uid).order("data"),
+    sb.from("cargas").select("exercicio_id, valor").eq("user_id", uid),
+    sb.from("concluidos_hoje").select("*").eq("user_id", uid).maybeSingle(),
+  ]);
+
+  S.perfil = perfilRow || null;
+  S.checkins = checkinsRows || [];
+  S.cargas = {};
+  (cargasRows || []).forEach(r => { S.cargas[r.exercicio_id] = Number(r.valor); });
+  S.concluidosHoje = (hojeRow && hojeRow.data === hojeISO()) ? { data: hojeRow.data, letra: hojeRow.letra, ids: hojeRow.ids || [] } : null;
+
+  render();
+}
+
+async function enviarLinkMagico(email){
+  loginStatus = null; render();
+  const { error } = await sb.auth.signInWithOtp({ email, options: { emailRedirectTo: window.location.href } });
+  loginStatus = error ? { tipo:"erro", msg: "Não deu pra enviar o link. Confira o e-mail e tente de novo." }
+                       : { tipo:"ok", msg: `Link enviado para ${email}. Abra seu e-mail nesse mesmo aparelho e toque no link para entrar.` };
+  render();
+}
+
+async function sair(){
+  await sb.auth.signOut();
+  S = { checkins:[], cargas:{}, concluidosHoje:null, perfil:null };
+  tela = "home";
+  render();
+}
+
+// ---------------- ONBOARDING ----------------
+async function salvarPerfil(sexo){
+  S.perfil = { id: session.user.id, sexo, nivel: null, objetivo: null, dias_semana: null };
+  render();
+}
+
+function renderOnboarding(){
+  return `
+    <div class="topbar">
+      <p class="eyebrow mono">Antes de começar</p>
+      <h1 class="title">Configure seu treino</h1>
+    </div>
+    <div class="section" style="margin-top:16px;">
+      <p class="eyebrow mono" style="margin-bottom:10px;">Sexo do plano</p>
+      <div class="selector-row" style="padding:0;margin:0 0 24px;">
+        <button class="sel-btn" onclick="salvarPerfil('Masculino')">Masculino</button>
+        <button class="sel-btn" onclick="salvarPerfil('Feminino')">Feminino</button>
+      </div>
+    </div>
+  `;
+}
+
+function renderOnboardingNivel(){
+  return `
+    <div class="topbar">
+      <p class="eyebrow mono">Passo 2 de 2</p>
+      <h1 class="title">Qual seu nível hoje?</h1>
+    </div>
+    <div class="section" style="margin-top:8px;display:flex;flex-direction:column;gap:10px;">
+      ${[
+        ["Iniciante","nunca treinei ou parei há muito tempo"],
+        ["Intermediário","treino com regularidade há alguns meses"],
+        ["Avançado","treino consistente há mais de 1 ano"],
+      ].map(([lvl,desc])=>`
+        <button class="card workout-card" style="padding:14px;" onclick="finalizarOnboarding('${lvl}')">
+          <p class="wname" style="margin:0;">${lvl}</p>
+          <p class="wsub" style="margin-top:4px;">${desc}</p>
+        </button>
+      `).join("")}
+    </div>
+  `;
+}
+
+async function finalizarOnboarding(nivel){
+  S.perfil.nivel = nivel;
+  S.perfil.objetivo = "Hipertrofia + definição";
+  S.perfil.dias_semana = 5;
+  render(); // otimista — mostra a tela na hora
+  const { error } = await sb.from("perfis").upsert(S.perfil);
+  if(error) console.error(error);
+}
+
+// ---------------- LÓGICA DE SEQUÊNCIA ----------------
+function proximoDaSequencia(letra){
+  const idx = SEQUENCIA.indexOf(letra);
+  return SEQUENCIA[(idx+1) % SEQUENCIA.length];
+}
+function ultimoCheckinLetra(){
+  if(S.checkins.length===0) return "C"; // default: próximo automático começa em A
+  return S.checkins[S.checkins.length-1].letra;
+}
+function letraAtiva(){
+  if(S.concluidosHoje && S.concluidosHoje.data === hojeISO()) return S.concluidosHoje.letra;
+  return proximoDaSequencia(ultimoCheckinLetra());
+}
+function isAutomatica(){
+  if(!S.concluidosHoje || S.concluidosHoje.data !== hojeISO()) return true;
+  return S.concluidosHoje.letra === proximoDaSequencia(ultimoCheckinLetra());
+}
+function cargaAtual(exId, base){
+  return S.cargas[exId] !== undefined ? S.cargas[exId] : base;
+}
+function idsConcluidosHoje(){
+  if(S.concluidosHoje && S.concluidosHoje.data === hojeISO()) return S.concluidosHoje.ids || [];
+  return [];
+}
+function pulosSeguidos(letra){
+  // conta quantas vezes seguidas, a partir do checkin mais recente, essa letra foi "pulada"
+  // (ou seja, outras letras foram escolhidas quando essa seria a natural)
+  let count = 0;
+  let ponteiro = ultimoCheckinLetra();
+  for(let i=S.checkins.length-1; i>=0; i--){
+    const esperado = proximoDaSequencia(i>0 ? S.checkins[i-1].letra : "C");
+    if(esperado === letra){
+      if(S.checkins[i].letra !== letra){ count++; } else { break; }
+    }
+  }
+  return count;
+}
+
+// ---------------- AÇÕES ----------------
+async function escolherTreino(letra){
+  S.concluidosHoje = { data: hojeISO(), letra, ids: [] };
+  render();
+  await sb.from("concluidos_hoje").upsert({ user_id: session.user.id, data: S.concluidosHoje.data, letra, ids: [] });
+}
+async function toggleExercicio(exId){
+  if(!S.concluidosHoje || S.concluidosHoje.data !== hojeISO()){
+    S.concluidosHoje = { data: hojeISO(), letra: letraAtiva(), ids: [] };
+  }
+  const ids = S.concluidosHoje.ids || [];
+  S.concluidosHoje.ids = ids.includes(exId) ? ids.filter(i=>i!==exId) : [...ids, exId];
+  render();
+  await sb.from("concluidos_hoje").upsert({
+    user_id: session.user.id, data: S.concluidosHoje.data, letra: S.concluidosHoje.letra, ids: S.concluidosHoje.ids,
+  });
+}
+async function ajustarCarga(exId, base, delta){
+  const atual = cargaAtual(exId, base);
+  const novaCarga = Math.max(0, +(atual + delta).toFixed(1));
+  S.cargas[exId] = novaCarga;
+  render();
+  await sb.from("cargas").upsert({ user_id: session.user.id, exercicio_id: exId, valor: novaCarga });
+}
+async function finalizarTreino(){
+  const letra = letraAtiva();
+  const hoje = hojeISO();
+  if(!S.checkins.find(c=>c.data===hoje)){
+    S.checkins.push({ data: hoje, letra });
+    render();
+    await sb.from("checkins").insert({ user_id: session.user.id, data: hoje, letra });
+  }
+}
+function abrirVideo(videoId, nome){ videoAberto = {videoId, nome}; render(); }
+function fecharVideo(){ videoAberto = null; render(); }
+function irPara(t){ tela = t; window.scrollTo(0,0); render(); }
+
+// ---------------- ÍCONES (SVG inline) ----------------
+const ic = {
+  flame:`<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 2s-6 6-6 12a6 6 0 0012 0c0-2-1-3-1-3s-1 2-2 2c1-3-1-5-1-8 0 0-2 2-2 5-1-1-1-3 0-8z"/></svg>`,
+  check:`<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>`,
+  chevronR:`<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>`,
+  chevronL:`<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>`,
+  play:`<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></svg>`,
+  x:`<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>`,
+  home:`<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>`,
+  dumbbell:`<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6.5 6.5l11 11M4 8l4-4 2 2-4 4-2-2zM16 16l4 4 2-2-4-4-2 2zM2 12l3-3M22 12l-3 3"/></svg>`,
+  user:`<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>`,
+};
+
+// ---------------- RENDER ----------------
+function render(){
+  const app = document.getElementById("app");
+  let html = "";
+  if(!session){ html = renderLogin(); app.innerHTML = html; return; }
+  if(!S.perfil){ html = renderOnboarding(); app.innerHTML = html; return; }
+  if(!S.perfil.nivel){ html = renderOnboardingNivel(); app.innerHTML = html; return; }
+  if(tela==="home") html = renderHome();
+  else if(tela==="treino") html = renderTreino();
+  else if(tela==="perfil") html = renderPerfil();
+  html += renderNav();
+  if(videoAberto) html += renderVideoModal();
+  app.innerHTML = html;
+}
+
+function renderConfigFaltando(){
+  document.getElementById("app").innerHTML = `
+    <div class="login-wrap">
+      <p class="eyebrow mono">Configuração pendente</p>
+      <h1 class="title" style="margin-bottom:10px;">Falta ligar o Supabase</h1>
+      <p style="font-size:13px;color:var(--muted);line-height:1.6;">
+        Este arquivo precisa da URL e da chave anônima do seu projeto Supabase preenchidas
+        nas constantes <code>SUPABASE_URL</code> e <code>SUPABASE_ANON_KEY</code>, no topo do &lt;script&gt;.
+      </p>
+    </div>`;
+}
+
+function renderLogin(){
+  return `
+    <div class="login-wrap">
+      <p class="eyebrow mono">Bem-vindo</p>
+      <h1 class="title" style="margin-bottom:6px;">Entrar no Treino</h1>
+      <p style="font-size:13px;color:var(--muted);">Digite seu e-mail. Você recebe um link — sem senha.</p>
+      <input id="emailInput" class="login-input" type="email" placeholder="seu@email.com" autocomplete="email" />
+      <button class="login-btn" onclick="handleLogin()">Enviar link mágico</button>
+      ${loginStatus ? `<p class="login-msg ${loginStatus.tipo==='erro'?'err':''}">${loginStatus.msg}</p>` : ""}
+    </div>
+  `;
+}
+function handleLogin(){
+  const email = document.getElementById("emailInput").value.trim();
+  if(email) enviarLinkMagico(email);
+}
+
+function calcularStreak(){
+  const set = new Set(S.checkins.map(c=>c.data));
+  let streak = 0;
+  let d = new Date();
+  // se hoje não treinou ainda, começa a contagem de ontem pra trás
+  if(!set.has(hojeISO())) d.setDate(d.getDate()-1);
+  while(true){
+    const iso = d.toISOString().slice(0,10);
+    if(set.has(iso)){ streak++; d.setDate(d.getDate()-1); } else break;
+  }
+  return streak;
+}
+function checkinsDoMes(){
+  const now = new Date();
+  return S.checkins.filter(c=>{
+    const d = new Date(c.data+"T00:00:00");
+    return d.getMonth()===now.getMonth() && d.getFullYear()===now.getFullYear();
+  }).length;
+}
+function diasSemanaComTreino(){
+  // segunda a domingo da semana atual
+  const now = new Date();
+  const diaSemana = (now.getDay()+6)%7; // 0=segunda
+  const seg = new Date(now); seg.setDate(now.getDate()-diaSemana);
+  const set = new Set(S.checkins.map(c=>c.data));
+  const arr = [];
+  for(let i=0;i<7;i++){
+    const d = new Date(seg); d.setDate(seg.getDate()+i);
+    arr.push(set.has(d.toISOString().slice(0,10)));
+  }
+  return arr;
+}
+
+function renderHome(){
+  const letra = letraAtiva();
+  const t = TREINOS[letra];
+  const auto = isAutomatica();
+  const idsFeitos = idsConcluidosHoje();
+  const concluidos = t.exercicios.filter(e=>idsFeitos.includes(e.id)).length;
+  const dias = diasSemanaComTreino();
+  const streak = calcularStreak();
+
+  const evitado = SEQUENCIA.find(l => l!==letra && pulosSeguidos(l) >= 2);
+
+  return `
+    <div class="topbar">
+      <p class="eyebrow mono">${new Date().toLocaleDateString('pt-BR',{weekday:'long', day:'2-digit', month:'short'})}</p>
+      <h1 class="title">Bora treinar</h1>
+    </div>
+
+    ${evitado ? `
+    <div class="banner">
+      ${ic.flame}
+      <span>Faz um tempo que você não treina <strong>${TREINOS[evitado].nome}</strong> — bora hoje?</span>
+    </div>` : ""}
+
+    <div class="card streak-card">
+      <div class="streak-head">
+        <div class="streak-label">${ic.flame}<span>Sequência atual</span></div>
+        <span class="streak-num mono">${streak}d</span>
+      </div>
+      <div class="week-grid">
+        ${DIAS_SEMANA_LABEL.map((l,i)=>`
+          <div class="day-col">
+            <span class="day-letter mono">${l}</span>
+            <div class="day-box ${dias[i]?'done':''}">${dias[i]?ic.check:''}</div>
+          </div>`).join("")}
+      </div>
+      <div class="streak-foot">
+        <span>Este mês</span>
+        <span class="mono">${checkinsDoMes()} treinos</span>
+      </div>
+    </div>
+
+    <div class="section">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+        <p class="eyebrow mono">Treino de hoje</p>
+        <span class="mono" style="font-size:10px;color:var(--muted2);">${auto?'sequência automática':'escolhido manualmente'}</span>
+      </div>
+      <button class="workout-card" onclick="irPara('treino')">
+        <div class="workout-top">
+          <div>
+            <div class="workout-name">
+              <span class="badge-letter">${t.letra}</span>
+              <span class="wname">${t.nome}</span>
+            </div>
+            <p class="wsub">${t.exercicios.length} exercícios · ${t.duracao}</p>
+          </div>
+          <span style="color:var(--muted2);margin-top:4px;">${ic.chevronR}</span>
+        </div>
+        <div class="pill-row">
+          <span class="pill accent">${t.nivel}</span>
+          <span class="pill">${concluidos} de ${t.exercicios.length} feitos</span>
+        </div>
+      </button>
+    </div>
+
+    <div class="selector-row">
+      ${SEQUENCIA.map(l=>`
+        <button class="sel-btn ${l===letra?'active':''} mono" onclick="escolherTreino('${l}')">Treino ${l}</button>
+      `).join("")}
+    </div>
+    <p class="seq-note mono">${auto ? 'próximo da sequência automática' : `escolhido manualmente · próximo automático vira ${proximoDaSequencia(letra)}`}</p>
+
+    <div class="section">
+      <p class="eyebrow mono" style="margin-bottom:8px;">Rotina da semana</p>
+      <div class="week-list">
+        ${SEQUENCIA.map(l=>`
+          <div class="card week-item">
+            <span class="badge-letter ghost mono">${l}</span>
+            <span class="wtext">${TREINOS[l].nome}</span>
+          </div>
+        `).join("")}
+      </div>
+    </div>
+  `;
+}
+
+function renderTreino(){
+  const letra = letraAtiva();
+  const t = TREINOS[letra];
+  const idsFeitos = idsConcluidosHoje();
+  const jaCheckou = S.checkins.some(c=>c.data===hojeISO());
+
+  return `
+    <div class="topline">
+      <button class="backbtn" onclick="irPara('home')">${ic.chevronL}</button>
+      <div>
+        <p class="eyebrow mono">Treino ${t.letra} · ${t.nivel}</p>
+        <h1 class="title" style="font-size:24px;">${t.nome}</h1>
+      </div>
+    </div>
+
+    <div class="progress-track">
+      <div class="progress-fill" style="width:${(idsFeitos.length/t.exercicios.length)*100}%"></div>
+    </div>
+    <p class="progress-label mono">${idsFeitos.length} de ${t.exercicios.length} exercícios concluídos</p>
+
+    <div class="ex-list">
+      ${t.exercicios.map(ex=>{
+        const feito = idsFeitos.includes(ex.id);
+        const carga = cargaAtual(ex.id, ex.cargaBase);
+        return `
+        <div class="card ex-card ${feito?'done':''}">
+          <div class="ex-top">
+            <div style="flex:1;">
+              <span class="pill">${ex.grupo}</span>
+              <p class="ex-name ${feito?'strike':''}">${ex.nome}</p>
+              <p class="ex-meta mono">${ex.series} séries × ${ex.reps} reps</p>
+            </div>
+            <button class="check-btn ${feito?'done':''}" onclick="toggleExercicio('${ex.id}')">${feito?ic.check:''}</button>
+          </div>
+          <div class="load-row">
+            <span class="lbl mono">Carga atual</span>
+            <div class="load-ctrl">
+              <button class="step-btn" onclick="ajustarCarga('${ex.id}',${ex.cargaBase},-2.5)">−</button>
+              <span class="load-val mono">${carga} kg</span>
+              <button class="step-btn" onclick="ajustarCarga('${ex.id}',${ex.cargaBase},2.5)">+</button>
+            </div>
+          </div>
+          <button class="video-btn" onclick="abrirVideo('${ex.videoId}','${ex.nome.replace(/'/g,"\\'")}')">${ic.play} Ver como fazer</button>
+        </div>`;
+      }).join("")}
+    </div>
+
+    <div class="finish-bar">
+      <button class="finish-btn" ${jaCheckou?'disabled':''} onclick="finalizarTreino()">
+        ${jaCheckou ? 'Treino de hoje já registrado' : 'Finalizar treino de hoje'}
+      </button>
+    </div>
+  `;
+}
+
+function renderPerfil(){
+  const totalSessoes = S.checkins.length;
+  const meta = 32; // sessões pro próximo nível (mock — no app real isso vem de config por nível)
+  const pct = Math.min(100, Math.round((totalSessoes/meta)*100));
+  const p = S.perfil || {};
+  return `
+    <div class="topbar">
+      <p class="eyebrow mono">Sua evolução</p>
+      <h1 class="title">Perfil</h1>
+    </div>
+    <div class="card" style="margin:0 20px;padding:18px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+        <span style="font-weight:600;font-size:14px;">Nível atual</span>
+        <span class="pill accent">${p.nivel || '—'}</span>
+      </div>
+      <p style="font-size:12px;color:var(--muted);margin:0 0 14px;">${totalSessoes} de ${meta} sessões registradas para o próximo nível</p>
+      <div style="height:8px;border-radius:99px;background:var(--card2);overflow:hidden;">
+        <div style="height:100%;background:var(--accent);width:${pct}%;"></div>
+      </div>
+    </div>
+    <div class="section">
+      <p class="eyebrow mono" style="margin-bottom:8px;">Configuração</p>
+      <div class="card settings-list">
+        <div class="settings-item"><span class="k">Sexo do plano</span><span class="v">${p.sexo || '—'}</span></div>
+        <div class="settings-item" style="border-top:1px solid var(--border);"><span class="k">Objetivo</span><span class="v">${p.objetivo || '—'}</span></div>
+        <div class="settings-item" style="border-top:1px solid var(--border);"><span class="k">Dias por semana</span><span class="v">${p.dias_semana || '—'} dias</span></div>
+        <div class="settings-item" style="border-top:1px solid var(--border);"><span class="k">Divisão</span><span class="v">ABC contínuo</span></div>
+      </div>
+      <button class="logout-btn mono" onclick="sair()">Sair da conta</button>
+    </div>
+  `;
+}
+
+function renderVideoModal(){
+  return `
+    <div class="modal-bg" onclick="fecharVideo()">
+      <div class="modal-sheet" onclick="event.stopPropagation()">
+        <div class="modal-head">
+          <p>${videoAberto.nome}</p>
+          <button class="modal-close" onclick="fecharVideo()">${ic.x}</button>
+        </div>
+        <div class="video-wrap">
+          <iframe src="https://www.youtube.com/embed/${videoAberto.videoId}" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function renderNav(){
+  return `
+    <div class="navbar">
+      <button class="nav-btn ${tela==='home'?'active':''}" onclick="irPara('home')">${ic.home}<span>Início</span></button>
+      <button class="nav-btn ${tela==='treino'?'active':''}" onclick="irPara('treino')">${ic.dumbbell}<span>Treino</span></button>
+      <button class="nav-btn ${tela==='perfil'?'active':''}" onclick="irPara('perfil')">${ic.user}<span>Perfil</span></button>
+    </div>
+  `;
+}
+
+init();
+
+// PWA: instalável na tela inicial + funciona offline (só ativa quando hospedado fora do Claude)
+if("serviceWorker" in navigator && location.protocol.startsWith("http")){
+  window.addEventListener("load", ()=>{
+    navigator.serviceWorker.register("./sw.js").catch(()=>{});
+  });
+}
+</script>
+</body>
+</html>
