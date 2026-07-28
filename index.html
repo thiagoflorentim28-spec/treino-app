@@ -124,32 +124,209 @@
 
 <script>
 // ---------------- DADOS ----------------
-const SEQUENCIA = ["A","B","C"];
+const NIVEIS = ["Iniciante","Intermediário","Avançado"];
 
-const TREINOS = {
-  A: { letra:"A", nome:"Peito, Ombro e Tríceps", nivel:"Intermediário", duracao:"48 min", exercicios:[
-    {id:"A1", nome:"Supino reto barra", series:4, reps:"8-10", grupo:"Peito", cargaBase:60, videoId:"rT7DgCr-3pg"},
-    {id:"A2", nome:"Supino inclinado halter", series:3, reps:"10-12", grupo:"Peito", cargaBase:24, videoId:"8iPEnn-ltC8"},
-    {id:"A3", nome:"Crucifixo máquina", series:3, reps:"12-15", grupo:"Peito", cargaBase:32, videoId:"eozdVDA78K0"},
-    {id:"A4", nome:"Desenvolvimento halter", series:4, reps:"8-10", grupo:"Ombro", cargaBase:16, videoId:"qEwKCR5JCog"},
-    {id:"A5", nome:"Elevação lateral", series:3, reps:"12-15", grupo:"Ombro", cargaBase:10, videoId:"3VcKaXpzqRo"},
-    {id:"A6", nome:"Tríceps corda", series:3, reps:"12-15", grupo:"Tríceps", cargaBase:25, videoId:"vB5OHsJ3EME"},
-    {id:"A7", nome:"Tríceps francês", series:3, reps:"10-12", grupo:"Tríceps", cargaBase:18, videoId:"_gsUck-7M74"},
-  ]},
-  B: { letra:"B", nome:"Costas e Bíceps", nivel:"Intermediário", duracao:"45 min", exercicios:[
-    {id:"B1", nome:"Puxada frente", series:4, reps:"8-10", grupo:"Costas", cargaBase:55, videoId:"CAwf7n6Luuc"},
-    {id:"B2", nome:"Remada curvada barra", series:4, reps:"8-10", grupo:"Costas", cargaBase:40, videoId:"9efgcAjQe7E"},
-    {id:"B3", nome:"Remada baixa cabo", series:3, reps:"10-12", grupo:"Costas", cargaBase:45, videoId:"GZbfZ033f74"},
-    {id:"B4", nome:"Rosca direta barra", series:3, reps:"10-12", grupo:"Bíceps", cargaBase:22, videoId:"kwG2ipFRgfo"},
-    {id:"B5", nome:"Rosca alternada halter", series:3, reps:"10-12", grupo:"Bíceps", cargaBase:10, videoId:"sAq_ocpRh_I"},
-  ]},
-  C: { letra:"C", nome:"Pernas completo", nivel:"Intermediário", duracao:"52 min", exercicios:[
-    {id:"C1", nome:"Agachamento livre", series:4, reps:"8-10", grupo:"Pernas", cargaBase:70, videoId:"Dy28eq2PjcM"},
-    {id:"C2", nome:"Leg press 45°", series:4, reps:"10-12", grupo:"Pernas", cargaBase:140, videoId:"IZxyjW7MPJQ"},
-    {id:"C3", nome:"Cadeira extensora", series:3, reps:"12-15", grupo:"Pernas", cargaBase:35, videoId:"YyvSfVjQeL0"},
-    {id:"C4", nome:"Mesa flexora", series:3, reps:"12-15", grupo:"Pernas", cargaBase:30, videoId:"1Tq3QdYUuHs"},
-    {id:"C5", nome:"Panturrilha em pé", series:4, reps:"15-20", grupo:"Panturrilha", cargaBase:50, videoId:"gwLzBJYoWlI"},
-  ]},
+// minutos mínimos de cardio ao final de TODO treino, em qualquer nível
+const CARDIO_MIN = { "Iniciante":10, "Intermediário":10, "Avançado":10 };
+
+const PLANOS = {
+
+Masculino: {
+  // -------- INICIANTE: ABC, foco em técnica e corpo todo --------
+  "Iniciante": {
+    A: { letra:"A", nome:"Peito, Ombro e Tríceps", duracao:"40 min", exercicios:[
+      {id:"IA1", nome:"Supino reto barra", series:3, reps:"10-12", grupo:"Peito", cargaBase:40, videoId:"rT7DgCr-3pg"},
+      {id:"IA2", nome:"Supino inclinado halter", series:3, reps:"10-12", grupo:"Peito", cargaBase:14, videoId:"8iPEnn-ltC8"},
+      {id:"IA3", nome:"Desenvolvimento halter", series:3, reps:"10-12", grupo:"Ombro", cargaBase:10, videoId:"qEwKCR5JCog"},
+      {id:"IA4", nome:"Elevação lateral", series:3, reps:"12-15", grupo:"Ombro", cargaBase:6, videoId:"3VcKaXpzqRo"},
+      {id:"IA5", nome:"Tríceps corda", series:3, reps:"12-15", grupo:"Tríceps", cargaBase:15, videoId:"vB5OHsJ3EME"},
+    ]},
+    B: { letra:"B", nome:"Costas e Bíceps", duracao:"38 min", exercicios:[
+      {id:"IB1", nome:"Puxada frente", series:3, reps:"10-12", grupo:"Costas", cargaBase:35, videoId:"CAwf7n6Luuc"},
+      {id:"IB2", nome:"Remada baixa cabo", series:3, reps:"10-12", grupo:"Costas", cargaBase:30, videoId:"GZbfZ033f74"},
+      {id:"IB3", nome:"Rosca direta barra", series:3, reps:"10-12", grupo:"Bíceps", cargaBase:14, videoId:"kwG2ipFRgfo"},
+      {id:"IB4", nome:"Rosca alternada halter", series:3, reps:"10-12", grupo:"Bíceps", cargaBase:7, videoId:"sAq_ocpRh_I"},
+    ]},
+    C: { letra:"C", nome:"Pernas completo", duracao:"42 min", exercicios:[
+      {id:"IC1", nome:"Agachamento livre", series:3, reps:"10-12", grupo:"Pernas", cargaBase:30, videoId:"Dy28eq2PjcM"},
+      {id:"IC2", nome:"Leg press 45°", series:3, reps:"12-15", grupo:"Pernas", cargaBase:80, videoId:"IZxyjW7MPJQ"},
+      {id:"IC3", nome:"Cadeira extensora", series:3, reps:"12-15", grupo:"Pernas", cargaBase:20, videoId:"YyvSfVjQeL0"},
+      {id:"IC4", nome:"Mesa flexora", series:3, reps:"12-15", grupo:"Pernas", cargaBase:18, videoId:"1Tq3QdYUuHs"},
+      {id:"IC5", nome:"Panturrilha em pé", series:3, reps:"15-20", grupo:"Panturrilha", cargaBase:30, videoId:"gwLzBJYoWlI"},
+    ]},
+  },
+
+  // -------- INTERMEDIÁRIO: ABCD, mais volume e isolamento --------
+  "Intermediário": {
+    A: { letra:"A", nome:"Peito e Tríceps", duracao:"48 min", exercicios:[
+      {id:"MA1", nome:"Supino reto barra", series:4, reps:"8-10", grupo:"Peito", cargaBase:60, videoId:"rT7DgCr-3pg"},
+      {id:"MA2", nome:"Supino inclinado halter", series:3, reps:"10-12", grupo:"Peito", cargaBase:24, videoId:"8iPEnn-ltC8"},
+      {id:"MA3", nome:"Crucifixo máquina", series:3, reps:"12-15", grupo:"Peito", cargaBase:32, videoId:"eozdVDA78K0"},
+      {id:"MA4", nome:"Tríceps corda", series:3, reps:"12-15", grupo:"Tríceps", cargaBase:27, videoId:"vB5OHsJ3EME"},
+      {id:"MA5", nome:"Tríceps testa halter", series:3, reps:"10-12", grupo:"Tríceps", cargaBase:14, videoId:"r0Xf7A3k5e4"},
+    ]},
+    B: { letra:"B", nome:"Costas e Bíceps", duracao:"46 min", exercicios:[
+      {id:"MB1", nome:"Puxada frente", series:4, reps:"8-10", grupo:"Costas", cargaBase:58, videoId:"CAwf7n6Luuc"},
+      {id:"MB2", nome:"Remada curvada barra", series:4, reps:"8-10", grupo:"Costas", cargaBase:45, videoId:"9efgcAjQe7E"},
+      {id:"MB3", nome:"Remada unilateral halter", series:3, reps:"10-12", grupo:"Costas", cargaBase:24, videoId:"34HQ55Yds6o"},
+      {id:"MB4", nome:"Rosca direta barra", series:3, reps:"10-12", grupo:"Bíceps", cargaBase:24, videoId:"kwG2ipFRgfo"},
+      {id:"MB5", nome:"Rosca martelo", series:3, reps:"10-12", grupo:"Bíceps", cargaBase:12, videoId:"YrZ0qzBi-kk"},
+    ]},
+    C: { letra:"C", nome:"Pernas completo", duracao:"52 min", exercicios:[
+      {id:"MC1", nome:"Agachamento livre", series:4, reps:"8-10", grupo:"Pernas", cargaBase:80, videoId:"Dy28eq2PjcM"},
+      {id:"MC2", nome:"Leg press 45°", series:4, reps:"10-12", grupo:"Pernas", cargaBase:160, videoId:"IZxyjW7MPJQ"},
+      {id:"MC3", nome:"Stiff", series:3, reps:"10-12", grupo:"Posterior", cargaBase:50, videoId:"Xgql23RkpBk"},
+      {id:"MC4", nome:"Cadeira extensora", series:3, reps:"12-15", grupo:"Pernas", cargaBase:40, videoId:"YyvSfVjQeL0"},
+      {id:"MC5", nome:"Panturrilha em pé", series:4, reps:"15-20", grupo:"Panturrilha", cargaBase:55, videoId:"gwLzBJYoWlI"},
+    ]},
+    D: { letra:"D", nome:"Ombro e Abdômen", duracao:"40 min", exercicios:[
+      {id:"MD1", nome:"Desenvolvimento halter", series:4, reps:"8-10", grupo:"Ombro", cargaBase:18, videoId:"qEwKCR5JCog"},
+      {id:"MD2", nome:"Elevação lateral", series:3, reps:"12-15", grupo:"Ombro", cargaBase:12, videoId:"3VcKaXpzqRo"},
+      {id:"MD3", nome:"Elevação posterior", series:3, reps:"12-15", grupo:"Ombro", cargaBase:8, videoId:"neiVTL2U5Qo"},
+      {id:"MD4", nome:"Abdominal supra", series:4, reps:"15-20", grupo:"Abdômen", cargaBase:0, videoId:"w08qG9nQZ_Q"},
+      {id:"MD5", nome:"Prancha", series:3, reps:"40 seg", grupo:"Abdômen", cargaBase:0, videoId:"wX0lzNFbP7k"},
+    ]},
+  },
+
+  // -------- AVANÇADO: ABCDE, especialização por grupo --------
+  "Avançado": {
+    A: { letra:"A", nome:"Peito", duracao:"50 min", exercicios:[
+      {id:"AA1", nome:"Supino reto barra", series:4, reps:"6-8", grupo:"Peito", cargaBase:75, videoId:"rT7DgCr-3pg"},
+      {id:"AA2", nome:"Supino inclinado halter", series:4, reps:"8-10", grupo:"Peito", cargaBase:30, videoId:"8iPEnn-ltC8"},
+      {id:"AA3", nome:"Crucifixo cabo", series:3, reps:"12-15", grupo:"Peito", cargaBase:24, videoId:"j9dk50rAd1w"},
+      {id:"AA4", nome:"Crossover", series:3, reps:"12-15", grupo:"Peito", cargaBase:20, videoId:"E3aha5zhlc0"},
+      {id:"AA5", nome:"Paralelas (peso extra opcional)", series:3, reps:"8-12", grupo:"Peito", cargaBase:0, videoId:"_T_NTUu5P2U"},
+    ]},
+    B: { letra:"B", nome:"Costas", duracao:"50 min", exercicios:[
+      {id:"AB1", nome:"Barra fixa (peso extra opcional)", series:4, reps:"6-10", grupo:"Costas", cargaBase:0, videoId:"qjai6pjo_Xc"},
+      {id:"AB2", nome:"Puxada frente", series:4, reps:"8-10", grupo:"Costas", cargaBase:65, videoId:"CAwf7n6Luuc"},
+      {id:"AB3", nome:"Remada curvada barra", series:4, reps:"6-8", grupo:"Costas", cargaBase:55, videoId:"9efgcAjQe7E"},
+      {id:"AB4", nome:"Remada cavalinho", series:3, reps:"10-12", grupo:"Costas", cargaBase:40, videoId:"9SH7hdDYQ7w"},
+      {id:"AB5", nome:"Pull-over", series:3, reps:"12-15", grupo:"Costas", cargaBase:18, videoId:"gvbWkKYP0VY"},
+    ]},
+    C: { letra:"C", nome:"Pernas completo", duracao:"55 min", exercicios:[
+      {id:"AC1", nome:"Agachamento livre", series:5, reps:"6-8", grupo:"Pernas", cargaBase:90, videoId:"Dy28eq2PjcM"},
+      {id:"AC2", nome:"Leg press 45°", series:4, reps:"10-12", grupo:"Pernas", cargaBase:180, videoId:"IZxyjW7MPJQ"},
+      {id:"AC3", nome:"Stiff", series:4, reps:"8-10", grupo:"Posterior", cargaBase:60, videoId:"Xgql23RkpBk"},
+      {id:"AC4", nome:"Cadeira extensora", series:3, reps:"12-15", grupo:"Pernas", cargaBase:45, videoId:"YyvSfVjQeL0"},
+      {id:"AC5", nome:"Mesa flexora", series:3, reps:"12-15", grupo:"Pernas", cargaBase:35, videoId:"1Tq3QdYUuHs"},
+      {id:"AC6", nome:"Panturrilha em pé", series:4, reps:"15-20", grupo:"Panturrilha", cargaBase:60, videoId:"gwLzBJYoWlI"},
+    ]},
+    D: { letra:"D", nome:"Ombro", duracao:"42 min", exercicios:[
+      {id:"AD1", nome:"Desenvolvimento halter", series:4, reps:"8-10", grupo:"Ombro", cargaBase:20, videoId:"qEwKCR5JCog"},
+      {id:"AD2", nome:"Elevação lateral", series:4, reps:"12-15", grupo:"Ombro", cargaBase:14, videoId:"3VcKaXpzqRo"},
+      {id:"AD3", nome:"Elevação posterior", series:3, reps:"12-15", grupo:"Ombro", cargaBase:10, videoId:"neiVTL2U5Qo"},
+      {id:"AD4", nome:"Encolhimento", series:3, reps:"12-15", grupo:"Trapézio", cargaBase:30, videoId:"G4Db9-p9yJM"},
+    ]},
+    E: { letra:"E", nome:"Braços", duracao:"44 min", exercicios:[
+      {id:"AE1", nome:"Rosca direta barra", series:4, reps:"8-10", grupo:"Bíceps", cargaBase:26, videoId:"kwG2ipFRgfo"},
+      {id:"AE2", nome:"Rosca martelo", series:3, reps:"10-12", grupo:"Bíceps", cargaBase:14, videoId:"YrZ0qzBi-kk"},
+      {id:"AE3", nome:"Tríceps corda", series:4, reps:"10-12", grupo:"Tríceps", cargaBase:30, videoId:"vB5OHsJ3EME"},
+      {id:"AE4", nome:"Tríceps francês", series:3, reps:"10-12", grupo:"Tríceps", cargaBase:20, videoId:"_gsUck-7M74"},
+    ]},
+  },
+},
+
+Feminino: {
+  // -------- INICIANTE: ABC, com C priorizando pernas/glúteo/abdômen --------
+  "Iniciante": {
+    A: { letra:"A", nome:"Peito, Ombro e Tríceps", duracao:"32 min", exercicios:[
+      {id:"FIA1", nome:"Supino reto barra", series:3, reps:"10-12", grupo:"Peito", cargaBase:30, videoId:"rT7DgCr-3pg"},
+      {id:"FIA2", nome:"Desenvolvimento halter", series:3, reps:"10-12", grupo:"Ombro", cargaBase:8, videoId:"qEwKCR5JCog"},
+      {id:"FIA3", nome:"Elevação lateral", series:3, reps:"12-15", grupo:"Ombro", cargaBase:4, videoId:"3VcKaXpzqRo"},
+      {id:"FIA4", nome:"Tríceps corda", series:3, reps:"12-15", grupo:"Tríceps", cargaBase:12, videoId:"vB5OHsJ3EME"},
+    ]},
+    B: { letra:"B", nome:"Costas e Bíceps", duracao:"32 min", exercicios:[
+      {id:"FIB1", nome:"Puxada frente", series:3, reps:"10-12", grupo:"Costas", cargaBase:30, videoId:"CAwf7n6Luuc"},
+      {id:"FIB2", nome:"Remada baixa cabo", series:3, reps:"10-12", grupo:"Costas", cargaBase:25, videoId:"GZbfZ033f74"},
+      {id:"FIB3", nome:"Rosca direta barra", series:3, reps:"10-12", grupo:"Bíceps", cargaBase:10, videoId:"kwG2ipFRgfo"},
+      {id:"FIB4", nome:"Rosca alternada halter", series:3, reps:"10-12", grupo:"Bíceps", cargaBase:5, videoId:"sAq_ocpRh_I"},
+    ]},
+    C: { letra:"C", nome:"Pernas, Glúteos e Abdômen", duracao:"50 min", exercicios:[
+      {id:"FIC1", nome:"Agachamento livre", series:3, reps:"12-15", grupo:"Pernas", cargaBase:20, videoId:"Dy28eq2PjcM"},
+      {id:"FIC2", nome:"Afundo", series:3, reps:"10-12 cada perna", grupo:"Glúteos", cargaBase:8, videoId:"SSQkCXcEDx0"},
+      {id:"FIC3", nome:"Cadeira extensora", series:3, reps:"12-15", grupo:"Pernas", cargaBase:18, videoId:"YyvSfVjQeL0"},
+      {id:"FIC4", nome:"Mesa flexora", series:3, reps:"12-15", grupo:"Pernas", cargaBase:16, videoId:"1Tq3QdYUuHs"},
+      {id:"FIC5", nome:"Cadeira abdutora", series:3, reps:"15-20", grupo:"Glúteos", cargaBase:25, videoId:"50qHGus1TZk"},
+      {id:"FIC6", nome:"Panturrilha em pé", series:3, reps:"15-20", grupo:"Panturrilha", cargaBase:25, videoId:"gwLzBJYoWlI"},
+      {id:"FIC7", nome:"Abdominal supra", series:3, reps:"15-20", grupo:"Abdômen", cargaBase:0, videoId:"w08qG9nQZ_Q"},
+    ]},
+  },
+
+  // -------- INTERMEDIÁRIO: ABCD, 2 dos 4 dias priorizando pernas/glúteo --------
+  "Intermediário": {
+    A: { letra:"A", nome:"Peito e Ombro", duracao:"36 min", exercicios:[
+      {id:"FMA1", nome:"Supino reto barra", series:3, reps:"10-12", grupo:"Peito", cargaBase:45, videoId:"rT7DgCr-3pg"},
+      {id:"FMA2", nome:"Supino inclinado halter", series:3, reps:"10-12", grupo:"Peito", cargaBase:16, videoId:"8iPEnn-ltC8"},
+      {id:"FMA3", nome:"Desenvolvimento halter", series:3, reps:"10-12", grupo:"Ombro", cargaBase:10, videoId:"qEwKCR5JCog"},
+      {id:"FMA4", nome:"Elevação lateral", series:3, reps:"12-15", grupo:"Ombro", cargaBase:6, videoId:"3VcKaXpzqRo"},
+      {id:"FMA5", nome:"Tríceps corda", series:3, reps:"12-15", grupo:"Tríceps", cargaBase:15, videoId:"vB5OHsJ3EME"},
+    ]},
+    B: { letra:"B", nome:"Costas e Bíceps", duracao:"38 min", exercicios:[
+      {id:"FMB1", nome:"Puxada frente", series:4, reps:"10-12", grupo:"Costas", cargaBase:40, videoId:"CAwf7n6Luuc"},
+      {id:"FMB2", nome:"Remada baixa cabo", series:3, reps:"10-12", grupo:"Costas", cargaBase:35, videoId:"GZbfZ033f74"},
+      {id:"FMB3", nome:"Remada unilateral halter", series:3, reps:"10-12", grupo:"Costas", cargaBase:12, videoId:"34HQ55Yds6o"},
+      {id:"FMB4", nome:"Rosca direta barra", series:3, reps:"10-12", grupo:"Bíceps", cargaBase:14, videoId:"kwG2ipFRgfo"},
+      {id:"FMB5", nome:"Rosca martelo", series:3, reps:"10-12", grupo:"Bíceps", cargaBase:8, videoId:"YrZ0qzBi-kk"},
+    ]},
+    C: { letra:"C", nome:"Pernas e Glúteos (primária)", duracao:"55 min", exercicios:[
+      {id:"FMC1", nome:"Agachamento livre", series:4, reps:"10-12", grupo:"Pernas", cargaBase:40, videoId:"Dy28eq2PjcM"},
+      {id:"FMC2", nome:"Leg press 45°", series:4, reps:"12-15", grupo:"Pernas", cargaBase:90, videoId:"IZxyjW7MPJQ"},
+      {id:"FMC3", nome:"Afundo", series:3, reps:"10-12 cada perna", grupo:"Glúteos", cargaBase:10, videoId:"SSQkCXcEDx0"},
+      {id:"FMC4", nome:"Stiff", series:3, reps:"10-12", grupo:"Posterior", cargaBase:30, videoId:"Xgql23RkpBk"},
+      {id:"FMC5", nome:"Cadeira extensora", series:3, reps:"12-15", grupo:"Pernas", cargaBase:25, videoId:"YyvSfVjQeL0"},
+      {id:"FMC6", nome:"Panturrilha em pé", series:4, reps:"15-20", grupo:"Panturrilha", cargaBase:35, videoId:"gwLzBJYoWlI"},
+    ]},
+    D: { letra:"D", nome:"Glúteos e Abdômen (secundária)", duracao:"45 min", exercicios:[
+      {id:"FMD1", nome:"Hip thrust barra", series:4, reps:"10-12", grupo:"Glúteos", cargaBase:30, videoId:"3mnHo-F-U4Q"},
+      {id:"FMD2", nome:"Glúteo no cabo (coice)", series:3, reps:"12-15 cada lado", grupo:"Glúteos", cargaBase:10, videoId:"KCkcq-Vf_IQ"},
+      {id:"FMD3", nome:"Cadeira abdutora", series:3, reps:"15-20", grupo:"Glúteos", cargaBase:30, videoId:"50qHGus1TZk"},
+      {id:"FMD4", nome:"Agachamento sumô halter", series:3, reps:"12-15", grupo:"Glúteos", cargaBase:12, videoId:"u_TTcv8FvOk"},
+      {id:"FMD5", nome:"Abdominal supra", series:3, reps:"15-20", grupo:"Abdômen", cargaBase:0, videoId:"w08qG9nQZ_Q"},
+      {id:"FMD6", nome:"Prancha", series:3, reps:"40 seg", grupo:"Abdômen", cargaBase:0, videoId:"wX0lzNFbP7k"},
+    ]},
+  },
+
+  // -------- AVANÇADO: ABCDE, 3 dos 5 dias priorizando pernas/glúteo/abdômen --------
+  "Avançado": {
+    A: { letra:"A", nome:"Peito e Ombro", duracao:"40 min", exercicios:[
+      {id:"FAA1", nome:"Supino reto barra", series:4, reps:"8-10", grupo:"Peito", cargaBase:55, videoId:"rT7DgCr-3pg"},
+      {id:"FAA2", nome:"Supino inclinado halter", series:3, reps:"10-12", grupo:"Peito", cargaBase:20, videoId:"8iPEnn-ltC8"},
+      {id:"FAA3", nome:"Desenvolvimento halter", series:4, reps:"8-10", grupo:"Ombro", cargaBase:12, videoId:"qEwKCR5JCog"},
+      {id:"FAA4", nome:"Elevação lateral", series:4, reps:"12-15", grupo:"Ombro", cargaBase:8, videoId:"3VcKaXpzqRo"},
+      {id:"FAA5", nome:"Elevação posterior", series:3, reps:"12-15", grupo:"Ombro", cargaBase:6, videoId:"neiVTL2U5Qo"},
+    ]},
+    B: { letra:"B", nome:"Costas", duracao:"40 min", exercicios:[
+      {id:"FAB1", nome:"Puxada frente", series:4, reps:"8-10", grupo:"Costas", cargaBase:48, videoId:"CAwf7n6Luuc"},
+      {id:"FAB2", nome:"Remada curvada barra", series:4, reps:"8-10", grupo:"Costas", cargaBase:35, videoId:"9efgcAjQe7E"},
+      {id:"FAB3", nome:"Remada unilateral halter", series:3, reps:"10-12", grupo:"Costas", cargaBase:16, videoId:"34HQ55Yds6o"},
+      {id:"FAB4", nome:"Rosca direta barra", series:3, reps:"10-12", grupo:"Bíceps", cargaBase:16, videoId:"kwG2ipFRgfo"},
+      {id:"FAB5", nome:"Tríceps corda", series:3, reps:"12-15", grupo:"Tríceps", cargaBase:18, videoId:"vB5OHsJ3EME"},
+    ]},
+    C: { letra:"C", nome:"Pernas (quadríceps foco)", duracao:"55 min", exercicios:[
+      {id:"FAC1", nome:"Agachamento livre", series:5, reps:"8-10", grupo:"Pernas", cargaBase:55, videoId:"Dy28eq2PjcM"},
+      {id:"FAC2", nome:"Leg press 45°", series:4, reps:"10-12", grupo:"Pernas", cargaBase:130, videoId:"IZxyjW7MPJQ"},
+      {id:"FAC3", nome:"Afundo", series:4, reps:"10-12 cada perna", grupo:"Pernas", cargaBase:14, videoId:"SSQkCXcEDx0"},
+      {id:"FAC4", nome:"Cadeira extensora", series:4, reps:"12-15", grupo:"Pernas", cargaBase:35, videoId:"YyvSfVjQeL0"},
+      {id:"FAC5", nome:"Panturrilha em pé", series:4, reps:"15-20", grupo:"Panturrilha", cargaBase:45, videoId:"gwLzBJYoWlI"},
+    ]},
+    D: { letra:"D", nome:"Glúteos e Posterior", duracao:"50 min", exercicios:[
+      {id:"FAD1", nome:"Stiff", series:4, reps:"8-10", grupo:"Posterior", cargaBase:40, videoId:"Xgql23RkpBk"},
+      {id:"FAD2", nome:"Hip thrust barra", series:4, reps:"8-10", grupo:"Glúteos", cargaBase:45, videoId:"3mnHo-F-U4Q"},
+      {id:"FAD3", nome:"Mesa flexora", series:4, reps:"12-15", grupo:"Posterior", cargaBase:30, videoId:"1Tq3QdYUuHs"},
+      {id:"FAD4", nome:"Glúteo no cabo (coice)", series:3, reps:"12-15 cada lado", grupo:"Glúteos", cargaBase:14, videoId:"KCkcq-Vf_IQ"},
+      {id:"FAD5", nome:"Cadeira abdutora", series:4, reps:"15-20", grupo:"Glúteos", cargaBase:35, videoId:"50qHGus1TZk"},
+    ]},
+    E: { letra:"E", nome:"Glúteos e Abdômen", duracao:"40 min", exercicios:[
+      {id:"FAE1", nome:"Agachamento sumô halter", series:3, reps:"12-15", grupo:"Glúteos", cargaBase:18, videoId:"u_TTcv8FvOk"},
+      {id:"FAE2", nome:"Elevação pélvica com anilha", series:3, reps:"12-15", grupo:"Glúteos", cargaBase:10, videoId:"3mnHo-F-U4Q"},
+      {id:"FAE3", nome:"Abdominal supra", series:4, reps:"15-20", grupo:"Abdômen", cargaBase:0, videoId:"w08qG9nQZ_Q"},
+      {id:"FAE4", nome:"Abdominal infra", series:4, reps:"15-20", grupo:"Abdômen", cargaBase:0, videoId:"oq4Xb_xI618"},
+      {id:"FAE5", nome:"Prancha", series:3, reps:"45 seg", grupo:"Abdômen", cargaBase:0, videoId:"wX0lzNFbP7k"},
+    ]},
+  },
+},
+
 };
 
 const DIAS_SEMANA_LABEL = ["S","T","Q","Q","S","S","D"]; // seg..dom
@@ -163,7 +340,7 @@ const sb = (SUPABASE_URL.startsWith("http"))
   : null;
 
 // ---------------- ESTADO ----------------
-let S = { checkins:[], cargas:{}, concluidosHoje:null, perfil:null };
+let S = { checkins:[], cargas:{}, concluidosHoje:null, perfil:null, pesos:[] };
 let session = null;
 let tela = "home";
 let videoAberto = null;
@@ -183,11 +360,12 @@ async function carregarTudo(){
   if(!session){ render(); return; }
   const uid = session.user.id;
 
-  const [{data: perfilRow}, {data: checkinsRows}, {data: cargasRows}, {data: hojeRow}] = await Promise.all([
+  const [{data: perfilRow}, {data: checkinsRows}, {data: cargasRows}, {data: hojeRow}, {data: pesosRows}] = await Promise.all([
     sb.from("perfis").select("*").eq("id", uid).maybeSingle(),
     sb.from("checkins").select("data, letra").eq("user_id", uid).order("data"),
     sb.from("cargas").select("exercicio_id, valor").eq("user_id", uid),
     sb.from("concluidos_hoje").select("*").eq("user_id", uid).maybeSingle(),
+    sb.from("peso_corporal").select("data, valor").eq("user_id", uid).order("data"),
   ]);
 
   S.perfil = perfilRow || null;
@@ -195,6 +373,7 @@ async function carregarTudo(){
   S.cargas = {};
   (cargasRows || []).forEach(r => { S.cargas[r.exercicio_id] = Number(r.valor); });
   S.concluidosHoje = (hojeRow && hojeRow.data === hojeISO()) ? { data: hojeRow.data, letra: hojeRow.letra, ids: hojeRow.ids || [] } : null;
+  S.pesos = (pesosRows || []).map(r => ({ data: r.data, valor: Number(r.valor) }));
 
   render();
 }
@@ -229,7 +408,7 @@ async function criarConta(email, senha){
 
 async function sair(){
   await sb.auth.signOut();
-  S = { checkins:[], cargas:{}, concluidosHoje:null, perfil:null };
+  S = { checkins:[], cargas:{}, concluidosHoje:null, perfil:null, pesos:[] };
   tela = "home";
   render();
 }
@@ -286,14 +465,90 @@ async function finalizarOnboarding(nivel){
   if(error) console.error(error);
 }
 
+// ---------------- PESO CORPORAL ----------------
+function pesoDeHoje(){
+  const r = S.pesos.find(p => p.data === hojeISO());
+  return r ? r.valor : null;
+}
+async function registrarPeso(valor){
+  const hoje = hojeISO();
+  const idx = S.pesos.findIndex(p => p.data === hoje);
+  if(idx >= 0) S.pesos[idx].valor = valor; else S.pesos.push({ data: hoje, valor });
+  S.pesos.sort((a,b) => a.data.localeCompare(b.data));
+  render();
+  await sb.from("peso_corporal").upsert({ user_id: session.user.id, data: hoje, valor });
+}
+async function definirMeta(valor){
+  S.perfil.peso_meta = valor;
+  render();
+  await sb.from("perfis").upsert(S.perfil);
+}
+function handleRegistrarPeso(){
+  const el = document.getElementById("pesoHojeInput");
+  const v = parseFloat((el.value || "").replace(",", "."));
+  if(!v || v <= 0 || v > 400){ alert("Digite um peso válido em kg."); return; }
+  registrarPeso(v);
+}
+function handleDefinirMeta(){
+  const el = document.getElementById("pesoMetaInput");
+  const v = parseFloat((el.value || "").replace(",", "."));
+  if(!v || v <= 0 || v > 400){ alert("Digite uma meta válida em kg."); return; }
+  definirMeta(v);
+}
+function formatDataCurta(iso){
+  const [y,m,d] = iso.split("-");
+  return `${d}/${m}`;
+}
+function renderPesoChart(){
+  const pesos = S.pesos;
+  const meta = S.perfil.peso_meta;
+  if(pesos.length === 0){
+    return `<p style="font-size:12px;color:var(--muted);margin-top:10px;">Registre seu peso hoje para começar o histórico.</p>`;
+  }
+  const vals = pesos.map(p=>p.valor);
+  const allVals = meta ? [...vals, meta] : vals;
+  const min = Math.min(...allVals) - 1;
+  const max = Math.max(...allVals) + 1;
+  const w = 300, h = 110, pad = 8;
+  const stepX = pesos.length > 1 ? (w - pad*2) / (pesos.length - 1) : 0;
+  const scaleY = v => h - pad - ((v - min) / ((max - min) || 1)) * (h - pad*2);
+  const pontos = pesos.map((p,i) => `${pad + i*stepX},${scaleY(p.valor).toFixed(1)}`).join(" ");
+  const metaY = (meta !== null && meta !== undefined) ? scaleY(meta) : null;
+  return `
+    <svg viewBox="0 0 ${w} ${h}" style="width:100%;height:110px;margin-top:10px;display:block;" preserveAspectRatio="none">
+      ${metaY!==null ? `<line x1="0" y1="${metaY.toFixed(1)}" x2="${w}" y2="${metaY.toFixed(1)}" stroke="var(--muted2)" stroke-width="1" stroke-dasharray="4,4"/>` : ""}
+      <polyline points="${pontos}" fill="none" stroke="var(--accent)" stroke-width="2"/>
+      ${pesos.map((p,i)=>`<circle cx="${pad+i*stepX}" cy="${scaleY(p.valor).toFixed(1)}" r="3" fill="var(--accent)"/>`).join("")}
+    </svg>
+    <div class="mono" style="display:flex;justify-content:space-between;font-size:10px;color:var(--muted2);margin-top:2px;">
+      <span>${formatDataCurta(pesos[0].data)}</span>
+      ${meta!==null && meta!==undefined ? `<span>meta: ${meta} kg</span>` : ""}
+      <span>${formatDataCurta(pesos[pesos.length-1].data)}</span>
+    </div>
+  `;
+}
+
 // ---------------- LÓGICA DE SEQUÊNCIA ----------------
+function planoAtivo(){
+  const sexo = (S.perfil && S.perfil.sexo) || "Masculino";
+  const nivel = (S.perfil && S.perfil.nivel) || "Iniciante";
+  const porSexo = PLANOS[sexo] || PLANOS["Masculino"];
+  return porSexo[nivel] || porSexo["Iniciante"];
+}
+function sequenciaAtiva(){
+  return Object.keys(planoAtivo());
+}
 function proximoDaSequencia(letra){
-  const idx = SEQUENCIA.indexOf(letra);
-  return SEQUENCIA[(idx+1) % SEQUENCIA.length];
+  const seq = sequenciaAtiva();
+  const idx = seq.indexOf(letra);
+  if(idx === -1) return seq[0];
+  return seq[(idx+1) % seq.length];
 }
 function ultimoCheckinLetra(){
-  if(S.checkins.length===0) return "C"; // default: próximo automático começa em A
-  return S.checkins[S.checkins.length-1].letra;
+  const seq = sequenciaAtiva();
+  if(S.checkins.length===0) return seq[seq.length-1]; // assim o próximo automático é o primeiro do plano
+  const ultima = S.checkins[S.checkins.length-1].letra;
+  return seq.includes(ultima) ? ultima : seq[seq.length-1];
 }
 function letraAtiva(){
   if(S.concluidosHoje && S.concluidosHoje.data === hojeISO()) return S.concluidosHoje.letra;
@@ -310,13 +565,22 @@ function idsConcluidosHoje(){
   if(S.concluidosHoje && S.concluidosHoje.data === hojeISO()) return S.concluidosHoje.ids || [];
   return [];
 }
+function exerciciosComCardio(treino){
+  const min = CARDIO_MIN[S.perfil.nivel] || 10;
+  const idCardio = treino.letra + "-CARDIO";
+  return [...treino.exercicios, {
+    id: idCardio, nome:"Cardio (esteira, bike ou elíptico)", series:1,
+    reps:`mínimo ${min} min`, grupo:"Cardio", cargaBase: min, videoId:null, isCardio:true,
+  }];
+}
 function pulosSeguidos(letra){
   // conta quantas vezes seguidas, a partir do checkin mais recente, essa letra foi "pulada"
   // (ou seja, outras letras foram escolhidas quando essa seria a natural)
+  const seq = sequenciaAtiva();
   let count = 0;
-  let ponteiro = ultimoCheckinLetra();
   for(let i=S.checkins.length-1; i>=0; i--){
-    const esperado = proximoDaSequencia(i>0 ? S.checkins[i-1].letra : "C");
+    const anterior = i>0 ? S.checkins[i-1].letra : seq[seq.length-1];
+    const esperado = proximoDaSequencia(anterior);
     if(esperado === letra){
       if(S.checkins[i].letra !== letra){ count++; } else { break; }
     }
@@ -463,14 +727,16 @@ function diasSemanaComTreino(){
 
 function renderHome(){
   const letra = letraAtiva();
-  const t = TREINOS[letra];
+  const t = planoAtivo()[letra];
+  const exs = exerciciosComCardio(t);
   const auto = isAutomatica();
   const idsFeitos = idsConcluidosHoje();
-  const concluidos = t.exercicios.filter(e=>idsFeitos.includes(e.id)).length;
+  const concluidos = exs.filter(e=>idsFeitos.includes(e.id)).length;
   const dias = diasSemanaComTreino();
   const streak = calcularStreak();
+  const seq = sequenciaAtiva();
 
-  const evitado = SEQUENCIA.find(l => l!==letra && pulosSeguidos(l) >= 2);
+  const evitado = seq.find(l => l!==letra && pulosSeguidos(l) >= 2);
 
   return `
     <div class="topbar">
@@ -481,7 +747,7 @@ function renderHome(){
     ${evitado ? `
     <div class="banner">
       ${ic.flame}
-      <span>Faz um tempo que você não treina <strong>${TREINOS[evitado].nome}</strong> — bora hoje?</span>
+      <span>Faz um tempo que você não treina <strong>${planoAtivo()[evitado].nome}</strong> — bora hoje?</span>
     </div>` : ""}
 
     <div class="card streak-card">
@@ -514,31 +780,31 @@ function renderHome(){
               <span class="badge-letter">${t.letra}</span>
               <span class="wname">${t.nome}</span>
             </div>
-            <p class="wsub">${t.exercicios.length} exercícios · ${t.duracao}</p>
+            <p class="wsub">${exs.length} exercícios (com cardio) · ${t.duracao}</p>
           </div>
           <span style="color:var(--muted2);margin-top:4px;">${ic.chevronR}</span>
         </div>
         <div class="pill-row">
-          <span class="pill accent">${t.nivel}</span>
-          <span class="pill">${concluidos} de ${t.exercicios.length} feitos</span>
+          <span class="pill accent">${S.perfil.nivel}</span>
+          <span class="pill">${concluidos} de ${exs.length} feitos</span>
         </div>
       </button>
     </div>
 
     <div class="selector-row">
-      ${SEQUENCIA.map(l=>`
+      ${seq.map(l=>`
         <button class="sel-btn ${l===letra?'active':''} mono" onclick="escolherTreino('${l}')">Treino ${l}</button>
       `).join("")}
     </div>
     <p class="seq-note mono">${auto ? 'próximo da sequência automática' : `escolhido manualmente · próximo automático vira ${proximoDaSequencia(letra)}`}</p>
 
     <div class="section">
-      <p class="eyebrow mono" style="margin-bottom:8px;">Rotina da semana</p>
+      <p class="eyebrow mono" style="margin-bottom:8px;">Rotina do nível ${S.perfil.nivel}</p>
       <div class="week-list">
-        ${SEQUENCIA.map(l=>`
+        ${seq.map(l=>`
           <div class="card week-item">
             <span class="badge-letter ghost mono">${l}</span>
-            <span class="wtext">${TREINOS[l].nome}</span>
+            <span class="wtext">${planoAtivo()[l].nome}</span>
           </div>
         `).join("")}
       </div>
@@ -548,47 +814,53 @@ function renderHome(){
 
 function renderTreino(){
   const letra = letraAtiva();
-  const t = TREINOS[letra];
+  const t = planoAtivo()[letra];
   const idsFeitos = idsConcluidosHoje();
   const jaCheckou = S.checkins.some(c=>c.data===hojeISO());
+
+  const exs = exerciciosComCardio(t);
 
   return `
     <div class="topline">
       <button class="backbtn" onclick="irPara('home')">${ic.chevronL}</button>
       <div>
-        <p class="eyebrow mono">Treino ${t.letra} · ${t.nivel}</p>
+        <p class="eyebrow mono">Treino ${t.letra} · ${S.perfil.nivel}</p>
         <h1 class="title" style="font-size:24px;">${t.nome}</h1>
       </div>
     </div>
 
     <div class="progress-track">
-      <div class="progress-fill" style="width:${(idsFeitos.length/t.exercicios.length)*100}%"></div>
+      <div class="progress-fill" style="width:${(idsFeitos.length/exs.length)*100}%"></div>
     </div>
-    <p class="progress-label mono">${idsFeitos.length} de ${t.exercicios.length} exercícios concluídos</p>
+    <p class="progress-label mono">${idsFeitos.length} de ${exs.length} exercícios concluídos (inclui cardio)</p>
 
     <div class="ex-list">
-      ${t.exercicios.map(ex=>{
+      ${exs.map(ex=>{
         const feito = idsFeitos.includes(ex.id);
         const carga = cargaAtual(ex.id, ex.cargaBase);
+        const unidade = ex.isCardio ? "min" : "kg";
+        const passo = ex.isCardio ? 5 : 2.5;
         return `
         <div class="card ex-card ${feito?'done':''}">
           <div class="ex-top">
             <div style="flex:1;">
-              <span class="pill">${ex.grupo}</span>
+              <span class="pill ${ex.isCardio?'accent':''}">${ex.grupo}</span>
               <p class="ex-name ${feito?'strike':''}">${ex.nome}</p>
-              <p class="ex-meta mono">${ex.series} séries × ${ex.reps} reps</p>
+              <p class="ex-meta mono">${ex.series>1?`${ex.series} séries × `:''}${ex.reps}</p>
             </div>
             <button class="check-btn ${feito?'done':''}" onclick="toggleExercicio('${ex.id}')">${feito?ic.check:''}</button>
           </div>
           <div class="load-row">
-            <span class="lbl mono">Carga atual</span>
+            <span class="lbl mono">${ex.isCardio ? "Duração" : "Carga atual"}</span>
             <div class="load-ctrl">
-              <button class="step-btn" onclick="ajustarCarga('${ex.id}',${ex.cargaBase},-2.5)">−</button>
-              <span class="load-val mono">${carga} kg</span>
-              <button class="step-btn" onclick="ajustarCarga('${ex.id}',${ex.cargaBase},2.5)">+</button>
+              <button class="step-btn" onclick="ajustarCarga('${ex.id}',${ex.cargaBase},-${passo})">−</button>
+              <span class="load-val mono">${carga} ${unidade}</span>
+              <button class="step-btn" onclick="ajustarCarga('${ex.id}',${ex.cargaBase},${passo})">+</button>
             </div>
           </div>
-          <button class="video-btn" onclick="abrirVideo('${ex.videoId}','${ex.nome.replace(/'/g,"\\'")}')">${ic.play} Ver como fazer</button>
+          ${ex.videoId
+            ? `<button class="video-btn" onclick="abrirVideo('${ex.videoId}','${ex.nome.replace(/'/g,"\\'")}')">${ic.play} Ver como fazer</button>`
+            : (ex.isCardio ? "" : `<p class="video-btn" style="opacity:.5;cursor:default;">${ic.play} Vídeo em breve</p>`)}
         </div>`;
       }).join("")}
     </div>
@@ -606,6 +878,7 @@ function renderPerfil(){
   const meta = 32; // sessões pro próximo nível (mock — no app real isso vem de config por nível)
   const pct = Math.min(100, Math.round((totalSessoes/meta)*100));
   const p = S.perfil || {};
+  const divisaoLabel = { "Iniciante":"ABC contínuo", "Intermediário":"ABCD contínuo", "Avançado":"ABCDE contínuo" };
   return `
     <div class="topbar">
       <p class="eyebrow mono">Sua evolução</p>
@@ -616,22 +889,69 @@ function renderPerfil(){
         <span style="font-weight:600;font-size:14px;">Nível atual</span>
         <span class="pill accent">${p.nivel || '—'}</span>
       </div>
-      <p style="font-size:12px;color:var(--muted);margin:0 0 14px;">${totalSessoes} de ${meta} sessões registradas para o próximo nível</p>
+      <p style="font-size:12px;color:var(--muted);margin:0 0 14px;">${totalSessoes} de ${meta} sessões registradas no total</p>
       <div style="height:8px;border-radius:99px;background:var(--card2);overflow:hidden;">
         <div style="height:100%;background:var(--accent);width:${pct}%;"></div>
       </div>
     </div>
+
+    <div class="section">
+      <p class="eyebrow mono" style="margin-bottom:8px;">Peso corporal</p>
+      <div class="card" style="padding:18px;">
+        ${(p.peso_meta === null || p.peso_meta === undefined) ? `
+          <p style="font-size:12px;color:var(--muted);margin:0 0 10px;">Defina sua meta de peso para acompanhar a evolução.</p>
+          <div style="display:flex;gap:8px;">
+            <input id="pesoMetaInput" class="login-input" type="number" step="0.1" placeholder="Meta em kg (ex: 85)" style="margin:0;flex:1;" />
+            <button class="finish-btn" style="width:auto;padding:0 16px;" onclick="handleDefinirMeta()">Salvar</button>
+          </div>
+        ` : `
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <div>
+              <span class="mono" style="font-size:22px;font-weight:800;color:var(--text);">${pesoDeHoje() !== null ? pesoDeHoje() : (S.pesos.length ? S.pesos[S.pesos.length-1].valor : '—')} kg</span>
+              <p style="font-size:11px;color:var(--muted2);margin:2px 0 0;">${pesoDeHoje() !== null ? 'registrado hoje' : (S.pesos.length ? 'último registro' : 'nenhum registro ainda')}</p>
+            </div>
+            <span class="pill accent">meta ${p.peso_meta} kg</span>
+          </div>
+          ${renderPesoChart()}
+          <div style="display:flex;gap:8px;margin-top:12px;">
+            <input id="pesoHojeInput" class="login-input" type="number" step="0.1" placeholder="Peso de hoje (kg)" style="margin:0;flex:1;" value="${pesoDeHoje() !== null ? pesoDeHoje() : ''}" />
+            <button class="finish-btn" style="width:auto;padding:0 16px;" onclick="handleRegistrarPeso()">Registrar</button>
+          </div>
+        `}
+      </div>
+    </div>
+
+    <div class="section">
+      <p class="eyebrow mono" style="margin-bottom:8px;">Trocar nível</p>
+      <p style="font-size:12px;color:var(--muted);margin:0 0 10px;">Se sentir que está pronto (ou precisa recuar), pode mudar quando quiser — não precisa esperar meta nenhuma.</p>
+      <div class="selector-row" style="padding:0;margin:0;">
+        ${NIVEIS.map(n=>`
+          <button class="sel-btn ${n===p.nivel?'active':''} mono" onclick="mudarNivel('${n}')">${n}</button>
+        `).join("")}
+      </div>
+    </div>
+
     <div class="section">
       <p class="eyebrow mono" style="margin-bottom:8px;">Configuração</p>
       <div class="card settings-list">
         <div class="settings-item"><span class="k">Sexo do plano</span><span class="v">${p.sexo || '—'}</span></div>
         <div class="settings-item" style="border-top:1px solid var(--border);"><span class="k">Objetivo</span><span class="v">${p.objetivo || '—'}</span></div>
         <div class="settings-item" style="border-top:1px solid var(--border);"><span class="k">Dias por semana</span><span class="v">${p.dias_semana || '—'} dias</span></div>
-        <div class="settings-item" style="border-top:1px solid var(--border);"><span class="k">Divisão</span><span class="v">ABC contínuo</span></div>
+        <div class="settings-item" style="border-top:1px solid var(--border);"><span class="k">Divisão</span><span class="v">${divisaoLabel[p.nivel] || '—'}</span></div>
+        <div class="settings-item" style="border-top:1px solid var(--border);"><span class="k">Cardio mínimo</span><span class="v">${CARDIO_MIN[p.nivel] || 10} min/treino</span></div>
       </div>
       <button class="logout-btn mono" onclick="sair()">Sair da conta</button>
     </div>
   `;
+}
+async function mudarNivel(novoNivel){
+  if(novoNivel === S.perfil.nivel) return;
+  if(!confirm(`Mudar para o nível ${novoNivel}? Os treinos vão mudar de imediato. Seu histórico de dias treinados continua contando.`)) return;
+  S.perfil.nivel = novoNivel;
+  S.concluidosHoje = null;
+  render();
+  await sb.from("perfis").upsert(S.perfil);
+  await sb.from("concluidos_hoje").delete().eq("user_id", session.user.id);
 }
 
 function renderVideoModal(){
