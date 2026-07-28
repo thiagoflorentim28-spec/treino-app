@@ -199,11 +199,31 @@ async function carregarTudo(){
   render();
 }
 
-async function enviarLinkMagico(email){
+async function entrarComSenha(email, senha){
   loginStatus = null; render();
-  const { error } = await sb.auth.signInWithOtp({ email, options: { emailRedirectTo: window.location.href } });
-  loginStatus = error ? { tipo:"erro", msg: "Não deu pra enviar o link. Confira o e-mail e tente de novo." }
-                       : { tipo:"ok", msg: `Link enviado para ${email}. Abra seu e-mail nesse mesmo aparelho e toque no link para entrar.` };
+  const { error } = await sb.auth.signInWithPassword({ email, password: senha });
+  if(error){
+    loginStatus = { tipo:"erro", msg: "E-mail ou senha incorretos, ou a conta ainda não existe. Se for sua primeira vez, use \"Criar conta\"." };
+    render();
+  }
+  // se der certo, onAuthStateChange cuida de recarregar tudo
+}
+
+async function criarConta(email, senha){
+  loginStatus = null; render();
+  const { data, error } = await sb.auth.signUp({ email, password: senha });
+  if(error){
+    loginStatus = { tipo:"erro", msg: error.message.includes("already registered") || error.message.includes("already been registered")
+      ? "Esse e-mail já tem conta. Use \"Entrar\" com sua senha."
+      : "Não foi possível criar a conta: " + error.message };
+    render();
+    return;
+  }
+  if(data.session){
+    // confirmação de e-mail desativada no Supabase -> já entra direto
+    return;
+  }
+  loginStatus = { tipo:"ok", msg: "Conta criada! Se a confirmação por e-mail estiver ativa no Supabase, confira sua caixa de entrada. Se não, tente \"Entrar\" agora." };
   render();
 }
 
@@ -386,16 +406,26 @@ function renderLogin(){
     <div class="login-wrap">
       <p class="eyebrow mono">Bem-vindo</p>
       <h1 class="title" style="margin-bottom:6px;">Entrar no Treino</h1>
-      <p style="font-size:13px;color:var(--muted);">Digite seu e-mail. Você recebe um link — sem senha.</p>
+      <p style="font-size:13px;color:var(--muted);">Digite seu e-mail e uma senha (mínimo 6 caracteres).</p>
       <input id="emailInput" class="login-input" type="email" placeholder="seu@email.com" autocomplete="email" />
-      <button class="login-btn" onclick="handleLogin()">Enviar link mágico</button>
+      <input id="senhaInput" class="login-input" type="password" placeholder="senha" autocomplete="current-password" style="margin-top:-6px;" />
+      <button class="login-btn" onclick="handleEntrar()">Entrar</button>
+      <button class="logout-btn mono" style="margin-top:10px;" onclick="handleCriarConta()">Criar conta nova</button>
       ${loginStatus ? `<p class="login-msg ${loginStatus.tipo==='erro'?'err':''}">${loginStatus.msg}</p>` : ""}
     </div>
   `;
 }
-function handleLogin(){
+function handleEntrar(){
   const email = document.getElementById("emailInput").value.trim();
-  if(email) enviarLinkMagico(email);
+  const senha = document.getElementById("senhaInput").value;
+  if(!email || !senha){ loginStatus = {tipo:"erro", msg:"Preencha e-mail e senha."}; render(); return; }
+  entrarComSenha(email, senha);
+}
+function handleCriarConta(){
+  const email = document.getElementById("emailInput").value.trim();
+  const senha = document.getElementById("senhaInput").value;
+  if(!email || senha.length < 6){ loginStatus = {tipo:"erro", msg:"Preencha e-mail e uma senha com pelo menos 6 caracteres."}; render(); return; }
+  criarConta(email, senha);
 }
 
 function calcularStreak(){
